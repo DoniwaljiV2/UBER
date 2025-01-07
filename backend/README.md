@@ -383,3 +383,86 @@ Example:
 {
   "message": "Failed to create caption: error_message_here"
 }
+
+# Caption Login Endpoint
+
+## POST /captions/login
+
+### Description
+This endpoint is used to log in an existing caption. It requires the caption's email and password.
+
+### Request Body
+The request body should be a JSON object containing the following fields:
+
+- `email` (string, required): The email address of the caption. Must be a valid email format.
+- `password` (string, required): The password for the caption. Must be at least 6 characters long.
+
+Example:
+```json
+{
+  "email": "test_email@test.com",
+  "password": "test_caption"
+}
+
+### Responses
+
+- **200 OK**
+
+  - **Description**:  Caption successfully logged in.
+  - **Body**:  A JSON object containing the authentication token and caption details.
+  - **Example**:
+    ```json
+    {
+  "token": "jwt_token_here",
+  "caption": {
+    "_id": "caption_id_here",
+    "fullname": {
+      "firstname": "test_caption_firstname",
+      "lastname": "test_caption_lastname"
+    },
+    "email": "test_email@test.com",
+    "vehicle": {
+      "color": "red",
+      "plate": "MP 04 XY 3456",
+      "capacity": 3,
+      "vehicleType": "car"
+    }
+  }
+}
+    ```
+
+
+    
+- **400 Bad Request**
+
+  - **Description**:   Invalid input data.
+  - **Body**:  A JSON object containing the authentication token and caption details.
+  - **Example**:
+    ```json
+    {
+  "errors": [
+    {
+      "msg": "Invalid Email",
+      "param": "email",
+      "location": "body"
+    },
+    {
+      "msg": "Password must be at least 6 characters long",
+      "param": "password",
+      "location": "body"
+    }
+  ]
+}
+    ```
+
+
+    - **500 Internal Server Error**
+
+  - **Description**:    An error occurred while processing the request.
+  - **Body**:   A JSON object containing the error message.
+  - **Example**:
+    ```json
+  {
+  "message": "Failed to log in caption: error_message_here"
+  }
+    ```
