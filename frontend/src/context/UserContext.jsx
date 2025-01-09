@@ -6,8 +6,10 @@ const UserContext = ({children}) => {
     const [user, setUser] = useState(
         {
             email:"",
-            fullName:"",
-            lastName:""
+            fullName:{
+                firstName:"",
+                lastName:""
+            }
         }
     )
   return (

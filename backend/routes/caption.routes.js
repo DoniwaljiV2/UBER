@@ -4,7 +4,7 @@ const captionController = require("../controllers/caption.controller");
 const { body } = require("express-validator");
 const authMiddleware = require("../middlewares/auth.middleware");
 router.post(
-  "/regiseter",
+  "/register",
   [
     body("email").isEmail().withMessage("Invalid Email"),
     body("fullname.firstname")
