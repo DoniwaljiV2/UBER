@@ -164,7 +164,7 @@ const CaptionSignup = () => {
       </div>
 
       <div>
-        <p className="text-xs leading-tight text-justify">
+        <p className="text-xs mt-6 leading-tight text-justify">
           This site is protected by reCAPTCHA and the{" "}
           <span className="underline">Google Policy</span> and{" "}
           <span className="underline">Terms of Service apply</span>
