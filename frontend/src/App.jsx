@@ -11,7 +11,8 @@ import CaptionHome from "./pages/CaptionHome";
 import CaptionProtectWrapper from "./pages/CaptionProtectWrapper";
 import CaptionLogout from "./pages/CaptionLogout";
 import Riding from "./pages/Riding";
-
+import CaptionRiding from "./pages/CaptionRiding";
+import "remixicon/fonts/remixicon.css"
 const App = () => {
   return (
     <div>
@@ -46,6 +47,7 @@ const App = () => {
         />
         <Route path="/caption-login" element={<CaptionLogin />} />
         <Route path="/caption-signup" element={<CaptionSignup />} />
+        <Route path="/caption-riding" element={<CaptionRiding />} />
 
 
         <Route
