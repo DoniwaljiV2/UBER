@@ -72,24 +72,53 @@ module.exports.getDistanceTime = async (origin, destination) => {
     throw error;
   }
 };
-module.exports.getAutoCompleteSuggestions=async(input)=>{
-    if(!input){
-        throw new Error("query is required")
 
+// module.exports.getAutoCompleteSuggestions=async(input)=>{
+//     if(!input){
+//         throw new Error("query is required")
+
+//     }
+//     const apiKey = process.env.GOOGLE_MAPS_API;
+//     const encodedInput= encodeURIComponent(input);
+//     // https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=<string>&key=your api key from gomaps.proc
+
+//     const url=`https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=${encodedInput}&key=${apiKey}`
+//     try {
+//       const response= await axios.get(url);
+//       if(response.data.status==='OK')
+//         {
+//           return response.data.predictions;
+//         }
+//       } catch (error) {
+//         console.error(error);
+//         throw error
+
+//     }
+// }
+
+module.exports.getAutoCompleteSuggestions = async (input) => {
+  if (!input) {
+    throw new Error("query is required");
+  }
+
+  const encodedInput = encodeURIComponent(input);
+  const apiKey = process.env.GOOGLE_MAPS_API;
+
+  // https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=<string>&key=your api key from gomaps.proc
+
+  const url = `https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=${encodedInput}&key=${apiKey}`;
+
+  try {
+    const response = await axios.get(url);
+    if (response.data.status === "OK") {
+      return response.data.predictions
+        .map((prediction) => prediction.description)
+        .filter((value) => value);
+    } else {
+      throw new Error("Unable to fetch suggestions");
     }
-    const apiKey = process.env.GOOGLE_MAPS_API;
-    const encodedInput= encodeURIComponent(input);
-    // https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=<string>&key=your api key from gomaps.proc
-    const url=`https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=${encodedInput}&key=${apiKey}`
-    try {
-        const response= await axios.get(url);
-        if(response.data.status==='OK')
-        {
-            return response.data.predictions;
-        }
-    } catch (error) {
-        console.error(error);
-        throw error
-        
-    }
-}
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};

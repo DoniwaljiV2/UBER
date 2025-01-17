@@ -20,11 +20,14 @@ router.get('/get-distance-time',
     authMiddleware.authUser,mapController.getDistanceTime
  );
 
+//  http://localhost:4000/maps/get-suggestions?input={input}&key={apikey}
 
  router.get('/get-suggestions',
-    query('input').isString().isLength({min:3}),
+    query('input').isString().isLength({min:1}),
     authMiddleware.authUser,
     mapController.getAutoCompleteSuggestions
  )
+
+
 
 module.exports = router;
