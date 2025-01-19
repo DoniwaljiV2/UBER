@@ -24,4 +24,4 @@ app.use("/users",userRoutes)
 app.use('/captions',captionRoutes)
 app.use("/maps",mapsRoutes)
 app.use("/rides",rideRoutes)
-module.exports=app
+module.exports=app 

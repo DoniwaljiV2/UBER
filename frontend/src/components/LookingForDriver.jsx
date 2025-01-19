@@ -1,11 +1,10 @@
-import React from "react";
 
 const LookingForDriver = ({ setVehicleFound,pickup,destination,fare,vehicleType }) => {
   return (
     <div>
       <h5
         onClick={() => setVehicleFound(false)}
-        className="p-1 text-center absolute top-0 w-[93%]"
+        className="p-1 text-center absolute top-0 w-[93%] "
       >
         <i className="text-3xl text-gray-300 ri-arrow-down-wide-line "></i>
       </h5>

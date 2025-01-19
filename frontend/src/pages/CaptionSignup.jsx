@@ -15,7 +15,7 @@ const CaptionSignup = () => {
   const [vehicleCapacity, setVehicleCapacity] = useState("");
   const [vehicleType, setVehicleType] = useState("");
 
-  const { caption, setCaption } = useContext(CaptionDataContext);
+  const { caption, setCaption, } = useContext(CaptionDataContext);
   const submitHandler =async (e) => {
     e.preventDefault();
 
@@ -54,6 +54,8 @@ const CaptionSignup = () => {
     setVehicleCapacity("");
     setVehicleType("");
   };
+  console.log(caption);
+  
   return (
     <div className="p-7 h-screen flex flex-col justify-between">
       <div>

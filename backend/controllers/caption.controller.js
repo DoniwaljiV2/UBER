@@ -2,7 +2,7 @@ const blacklistTokenModel = require("../models/blacklistToken.model");
 const captionModel=require("../models/caption.model");
 const captionService=require("../services/caption.service")
 const {validationResult}=require("express-validator");
-module.exports.registerCaption=async(req,res,next)=>{
+module.exports.registerCaption=async(req,res)=>{
 
     const errors=validationResult(req);
     if(!errors.isEmpty())
@@ -30,7 +30,7 @@ module.exports.registerCaption=async(req,res,next)=>{
     res.status(201).json({token,caption});
 }
 
-module.exports.loginCaption=async(req,res,next)=>{
+module.exports.loginCaption=async(req,res)=>{
         const  errors=validationResult(req);
         if(!errors.isEmpty())
         {
@@ -52,10 +52,10 @@ module.exports.loginCaption=async(req,res,next)=>{
         res.status(200).json({token,caption});
 }
 
-module.exports.getCaptionProfile=async(req,res,next)=>{
-    res.status(200).json(req.caption);
+module.exports.getCaptionProfile=async(req,res)=>{
+    res.status(200).json({caption:req.caption});
 }
-module.exports.logoutCaption=async(req,res,next)=>{
+module.exports.logoutCaption=async(req,res)=>{
     const token =req.cookies.token || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
     await blacklistTokenModel.create({token});
     res.clearCookie("token");

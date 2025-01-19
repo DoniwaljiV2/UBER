@@ -6,6 +6,8 @@ const CaptionLogout = () => {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
   useEffect(() => {
+
+    
     const logout = async () => {
         axios.get(`${import.meta.env.VITE_API_URL}/captains/logout`, {
             headers: {
@@ -14,7 +16,7 @@ const CaptionLogout = () => {
         }).then((response) => {
             if (response.status === 200) {
                 localStorage.removeItem('token')
-                navigate('/captain-login')
+                navigate('/caption-login')
             }
         })
     };

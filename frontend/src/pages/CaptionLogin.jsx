@@ -22,8 +22,12 @@ const CaptionLogin = () => {
     );
 
     if (response.status === 200) {
+     
+
       const data = response.data;
+      
       setCaption(data.caption);
+      
       localStorage.setItem("token", data.token);
       navigate("/caption-home");
     }
@@ -31,7 +35,7 @@ const CaptionLogin = () => {
     setEmail("");
     setPassword("");
   };
-
+  console.log("login:" ,caption);
   return (
     <div className="p-7 h-screen flex flex-col justify-between">
       <div>
