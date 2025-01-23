@@ -1,4 +1,5 @@
 const axios = require("axios");
+const captionModel = require("../models/caption.model");
 module.exports.getAddressCordinate = async (address) => {
   const apiKey = process.env.GOOGLE_MAPS_API;
   const encodedAddress = encodeURIComponent(address); // Corrected function name
@@ -73,28 +74,7 @@ module.exports.getDistanceTime = async (origin, destination) => {
   }
 };
 
-// module.exports.getAutoCompleteSuggestions=async(input)=>{
-//     if(!input){
-//         throw new Error("query is required")
 
-//     }
-//     const apiKey = process.env.GOOGLE_MAPS_API;
-//     const encodedInput= encodeURIComponent(input);
-//     // https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=<string>&key=your api key from gomaps.proc
-
-//     const url=`https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=${encodedInput}&key=${apiKey}`
-//     try {
-//       const response= await axios.get(url);
-//       if(response.data.status==='OK')
-//         {
-//           return response.data.predictions;
-//         }
-//       } catch (error) {
-//         console.error(error);
-//         throw error
-
-//     }
-// }
 
 module.exports.getAutoCompleteSuggestions = async (input) => {
   if (!input) {
@@ -122,3 +102,19 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
     throw err;
   }
 };
+
+module.exports.getCaptionInTheRadius=async (ltd,lng,radius)=>{
+
+  //radius in km
+
+  const captions= await captionModel.find({
+    location:{
+      $geoWithin:{
+        $centerSphere:[[ltd,lng],radius/6371]
+      }
+    }
+  })
+  // console.log("getCaptionInTheRadius",captions);
+  
+  return captions
+}

@@ -1,16 +1,86 @@
-import React, { useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import CaptionDetails from "../components/CaptionDetails";
 import RidePopUp from "../components/RidePopUp";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import ConfirmRidePopUp from "../components/ConfirmRidePopUp";
+import { SocketContext } from "../context/SocketContext";
+import { CaptionDataContext } from "../context/CaptionContext";
+import axios from "axios";
 
 const CaptionHome = () => {
-  const [ridePopupPanel, setRidePopupPanel] = useState(true)
-  const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false)
-  const ridePopupPanelRef=useRef(null);
-  const confirmRidePopupPanelRef=useRef(null);
+  const [ridePopupPanel, setRidePopupPanel] = useState(false);
+  const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false);
+  const ridePopupPanelRef = useRef(null);
+  const confirmRidePopupPanelRef = useRef(null);
+  const [ride, setRide] = useState(null);
+  const { socket } = useContext(SocketContext);
+  const { caption } = useContext(CaptionDataContext);
+
+  useEffect(() => {
+    socket.emit("join", {
+      userId: caption._id,
+      userType: "caption",
+    });
+
+    const updateLocation = () => {
+
+      
+      
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          // console.log("Position retrieved:", position.coords);
+          socket.emit("update-location-caption", {
+            userId: caption._id,
+            location: {
+              ltd: position.coords.latitude,
+              lng: position.coords.longitude,
+            },
+          });
+        });
+      } else {
+        console.warn("Geolocation is not supported by this browser.");
+      }
+    };
+
+    const locationInterval = setInterval(updateLocation, 10000);
+    updateLocation();
+  }, [caption]);
+
+  socket.on("new-ride", (data) => {
+    // console.log("new-ride: ",data);
+    
+    setRide(data);
+
+    setRidePopupPanel(true);
+  });
+ 
+
+  async function confirmRide() {
+
+   
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/rides/confirm`,
+        {
+          rideId: ride._id,
+          captionId: caption._id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      setRidePopupPanel(false);
+      setConfirmRidePopupPanel(true);
+    } catch (error) {
+      console.error("Error confirming the ride:", error);
+    }
+  }
+
   useGSAP(() => {
     if (ridePopupPanel) {
       gsap.to(ridePopupPanelRef.current, {
@@ -34,6 +104,9 @@ const CaptionHome = () => {
       });
     }
   }, [confirmRidePopupPanel]);
+
+// console.log("ride",ride);
+
 
   return (
     <div className="h-screen">
@@ -62,17 +135,26 @@ const CaptionHome = () => {
       <div className="h-2/5 p-6">
         <CaptionDetails />
       </div>
-      <div 
-      ref={ridePopupPanelRef}
-
-      className="fixed w-full z-10 bottom-0 translate-y-full  bg-white px-3 py-6 pt-12">
-        <RidePopUp setRidePopupPanel={setRidePopupPanel} setConfirmRidePopupPanel={setConfirmRidePopupPanel}/>
+      <div
+        ref={ridePopupPanelRef}
+        className="fixed w-full z-10 bottom-0 translate-y-full  bg-white px-3 py-6 pt-12"
+      >
+        <RidePopUp
+          ride={ride}
+          setRidePopupPanel={setRidePopupPanel}
+          setConfirmRidePopupPanel={setConfirmRidePopupPanel}
+          confirmRide={confirmRide}
+        />
       </div>
-      <div 
-      ref={confirmRidePopupPanelRef}
-
-      className="fixed w-full z-10 h-screen bottom-0 translate-y-full  bg-white px-3 py-6 pt-12">
-        <ConfirmRidePopUp setConfirmRidePopupPanel={setConfirmRidePopupPanel} setRidePopupPanel={setRidePopupPanel}/>
+      <div
+        ref={confirmRidePopupPanelRef}
+        className="fixed w-full z-10 h-screen bottom-0 translate-y-full  bg-white px-3 py-6 pt-12"
+      >
+        <ConfirmRidePopUp
+        ride={ride}
+          setConfirmRidePopupPanel={setConfirmRidePopupPanel}
+          setRidePopupPanel={setRidePopupPanel}
+        />
       </div>
     </div>
   );

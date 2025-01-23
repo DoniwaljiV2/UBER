@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import "remixicon/fonts/remixicon.css";
@@ -9,6 +9,9 @@ import LookingForDriver from "../components/LookingForDriver";
 import WaitingForDriver from "../components/WaitingForDriver";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { SocketContext } from "../context/SocketContext";
+import { UserDataContext } from "../context/UserContext";
+import { Socket } from "socket.io-client";
 const Home = () => {
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
@@ -31,6 +34,42 @@ const Home = () => {
   const [vehicleType, setVehicleType] = useState(null);
   const [ride, setRide] = useState(null);
   const navigate = useNavigate();
+  const { socket } = useContext(SocketContext);
+  const { user } = useContext(UserDataContext);
+
+  useEffect(() => {
+    socket.emit("join", { userType: "user", userId: user._id });
+  }, [user]);
+
+  socket.on("ride-confirmed", (ride) => {
+    // console.log("ride-confirmed: ", ride);
+
+    setVehicleFound(false);
+    setWaitingForDriver(true);
+    setRide(ride);
+  });
+
+  // socket.on("ride-started", (ride) => {
+  //   console.log("ride-started: ", ride);
+
+  //   setWaitingForDriver(false);
+  //   navigate("/riding");
+  // });
+
+  useEffect(() => {
+    const handleRideStarted = (ride) => {
+      console.log("ride-started: ", ride);
+      setWaitingForDriver(false);
+      navigate("/riding");
+    };
+
+    socket.on("ride-started", handleRideStarted);
+
+    // Clean up the listener when the component unmounts
+    return () => {
+      socket.off("ride-started", handleRideStarted);
+    };
+  }, [socket, navigate]);
 
   const handlePickupChange = async (e) => {
     setPickup(e.target.value);
@@ -72,6 +111,7 @@ const Home = () => {
   const submitHandler = (e) => {
     e.preventDefault();
   };
+
   useGSAP(() => {
     if (panelOpen) {
       gsap.to(panelRef.current, {
@@ -156,28 +196,23 @@ const Home = () => {
     );
     setFare(response.data);
   }
-  
-  async function createRide()
-  {
-    try {
-      const response= await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/create`
-        ,{
-          pickup,
-          destination,
-          vehicleType
-        },{
-          headers:{
-            Authorization:`Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      )
-      
-      
-    } catch (error) {
-      console.log("error in creating ride",error);
-      
-    }
-    }
+
+  async function createRide() {
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/rides/create`,
+      {
+        pickup,
+        destination,
+        vehicleType,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    // console.log("createRide",response);
+  }
 
   return (
     <div className="h-screen relative overflow-hidden">
@@ -286,20 +321,26 @@ const Home = () => {
 
       <div
         ref={vehicleFoundRef}
-        className="fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-10"
+        className="fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6"
       >
-        <LookingForDriver 
-         pickup={pickup}
-         destination={destination}
-         fare={fare}
-         vehicleType={vehicleType}
-        setVehicleFound={setVehicleFound} />
+        <LookingForDriver
+          pickup={pickup}
+          destination={destination}
+          fare={fare}
+          vehicleType={vehicleType}
+          setVehicleFound={setVehicleFound}
+        />
       </div>
       <div
         ref={waitingForDriverRef}
         className="fixed w-full z-10 bottom-0  bg-white px-3 py-6 pt-12"
       >
-        <WaitingForDriver setWaitingForDriver={setWaitingForDriver} />
+        <WaitingForDriver
+          ride={ride}
+          setVehicleFound={setVehicleFound}
+          setWaitingForDriver={setWaitingForDriver}
+          waitingForDriver={waitingForDriver}
+        />
       </div>
     </div>
   );

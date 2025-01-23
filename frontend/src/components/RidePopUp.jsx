@@ -1,4 +1,6 @@
-const RidePopUp = ({ setRidePopupPanel, setConfirmRidePopupPanel }) => {
+const RidePopUp = ({ setRidePopupPanel, setConfirmRidePopupPanel ,ride,confirmRide}) => {
+  // console.log(ride);
+  
   return (
     <div>
       <h5
@@ -15,7 +17,7 @@ const RidePopUp = ({ setRidePopupPanel, setConfirmRidePopupPanel }) => {
             src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OTJ8fHVzZXIlMjBwcm9maWxlfGVufDB8fDB8fHww"
             alt=""
           />
-          <h2 className="text-lg font-medium">Rahul Doniwal</h2>
+          <h2 className="text-lg font-medium">{ride?.user.fullname.firstname +" "+ ride?.user.fullname.lastname} </h2>
         </div>
         <h5 className="text-lg font-semibold">2.2 KM</h5>
       </div>
@@ -26,7 +28,7 @@ const RidePopUp = ({ setRidePopupPanel, setConfirmRidePopupPanel }) => {
             <div>
               <h3 className="text-lg font-medium">562/11-A</h3>
               <p className="text-sm mt-1 text-gray-600 ">
-                Ashoka Garden, Bhopal
+                {ride?.pickup}
               </p>
             </div>
           </div>
@@ -35,14 +37,14 @@ const RidePopUp = ({ setRidePopupPanel, setConfirmRidePopupPanel }) => {
             <div>
               <h3 className="text-lg font-medium">562/11-A</h3>
               <p className="text-sm mt-1 text-gray-600 ">
-                Ashoka Garden, Bhopal
+                {ride?.destination}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-5 p-3 ">
             <i className="text-lg ri-currency-line"></i>
             <div>
-              <h3 className="text-lg font-medium">₹193.00</h3>
+              <h3 className="text-lg font-medium">₹{ride?.fare}</h3>
               <p className="text-sm mt-1 text-gray-600 ">Cash Cash</p>
             </div>
           </div>
@@ -59,6 +61,7 @@ const RidePopUp = ({ setRidePopupPanel, setConfirmRidePopupPanel }) => {
           <button
             onClick={() => {
               setConfirmRidePopupPanel(true);
+              confirmRide()
             }}
             className="  bg-green-600 text-white font-semibold p-3 px-10 rounded-lg "
           >
