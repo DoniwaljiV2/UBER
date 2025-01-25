@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import "remixicon/fonts/remixicon.css";
@@ -12,6 +12,8 @@ import axios from "axios";
 import { SocketContext } from "../context/SocketContext";
 import { UserDataContext } from "../context/UserContext";
 import { Socket } from "socket.io-client";
+import { debounce } from "lodash";
+import LiveTracking from "../components/LiveTracking";
 const Home = () => {
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
@@ -49,63 +51,99 @@ const Home = () => {
     setRide(ride);
   });
 
-  // socket.on("ride-started", (ride) => {
-  //   console.log("ride-started: ", ride);
+  socket.on("ride-started", (ride) => {
+    // console.log("ride-started: ", ride);
 
-  //   setWaitingForDriver(false);
-  //   navigate("/riding");
-  // });
+    setWaitingForDriver(false);
+    navigate("/riding",{state:{ride:ride}});
+  });
 
-  useEffect(() => {
-    const handleRideStarted = (ride) => {
-      console.log("ride-started: ", ride);
-      setWaitingForDriver(false);
-      navigate("/riding");
-    };
+  // useEffect(() => {
+  //   const handleRideStarted = (ride) => {
+  //     console.log("ride-started: ", ride);
+  //     setWaitingForDriver(false);
+  //     navigate("/riding");
+  //   };
 
-    socket.on("ride-started", handleRideStarted);
+  //   socket.on("ride-started", handleRideStarted);
 
-    // Clean up the listener when the component unmounts
-    return () => {
-      socket.off("ride-started", handleRideStarted);
-    };
-  }, [socket, navigate]);
+  //   // Clean up the listener when the component unmounts
+  //   return () => {
+  //     socket.off("ride-started", handleRideStarted);
+  //   };
+  // }, [socket, navigate]);
 
-  const handlePickupChange = async (e) => {
-    setPickup(e.target.value);
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
-        {
-          params: { input: e.target.value },
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      setPickupSuggestions(response.data);
-    } catch (error) {
-      console.error("Error fetching pickup suggestions:", error.message);
-    }
+  // const handlePickupChange = async (e) => {
+  //   setPickup(e.target.value);
+  //   try {
+  //     const response = await axios.get(
+  //       `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
+  //       {
+  //         params: { input: e.target.value },
+  //         headers: {
+  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //         },
+  //       }
+  //     );
+  //     setPickupSuggestions(response.data);
+  //   } catch (error) {
+  //     console.error("Error fetching pickup suggestions:", error.message);
+  //   }
+  // };
+
+  // const handleDestinationChange = async (e) => {
+  //   setDestination(e.target.value);
+  //   try {
+  //     const response = await axios.get(
+  //       `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
+  //       {
+  //         params: { input: e.target.value },
+  //         headers: {
+  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //         },
+  //       }
+  //     );
+
+  //     setDestinationSuggestions(response.data);
+  //   } catch (error) {
+  //     console.error("Error fetching destination suggestions:", error.message);
+  //   }
+  // };
+
+
+
+  // Debounced function for API call
+  const fetchSuggestions = useCallback(
+    debounce(async (input, setSuggestions) => {
+      if (!input) return; // Avoid unnecessary calls for empty input
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
+          {
+            params: { input },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        setSuggestions(response.data);
+      } catch (error) {
+        console.error("Error fetching suggestions:", error.message);
+      }
+    }, 400), // 500ms debounce delay
+    [debounce] // Ensure the function doesn't recreate on every render
+  );
+
+  const handlePickupChange = (e) => {
+    const value = e.target.value;
+    setPickup(value);
+    fetchSuggestions(value, setPickupSuggestions);
   };
 
-  const handleDestinationChange = async (e) => {
-    setDestination(e.target.value);
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
-        {
-          params: { input: e.target.value },
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      setDestinationSuggestions(response.data);
-    } catch (error) {
-      console.error("Error fetching destination suggestions:", error.message);
-    }
+  const handleDestinationChange = (e) => {
+    const value = e.target.value;
+    setDestination(value);
+    fetchSuggestions(value, setDestinationSuggestions);
   };
 
   const submitHandler = (e) => {
@@ -221,6 +259,7 @@ const Home = () => {
         alt=""
         className="w-16 absolute top-5 left-5"
       />
+      {/* <LiveTracking/> */}
       <div className="h-screen w-screen">
         <img
           className="object-cover h-full w-full"

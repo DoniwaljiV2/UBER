@@ -26,10 +26,10 @@ const ConfirmRidePopUp = ({
     console.log("ConfirmRidePopUp: ")
     
     if (response.status === 200) {
-      console.log("Caption-riding");
+      // console.log("Caption-riding");
       setConfirmRidePopupPanel(false);
       setRidePopupPanel(false);
-      navigate("/caption-riding");
+      navigate("/caption-riding",{state:{ride:ride}});
     }
   };
   return (
